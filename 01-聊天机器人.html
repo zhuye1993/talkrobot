@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/main.css">
+    <script type="text/javascript" src="js/jquery-1.12.4.min.js"></script>
+    <script type="text/javascript" src="js/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="js/jquery.mousewheel.js"></script>
+    <script type="text/javascript" src="js/vue2.0.js"></script>
+    <title>聊天机器人</title>
+</head>
+
+<body>
+    <div class="wrap" v-cloak>
+        <div class="header">
+            <h3>知心姐姐</h3>
+            <img src="img/person01.png" alt="icon">
+        </div>
+        <div class="main">
+            <ul class="talk_list">
+                <li v-for="item in MsgList" :class="(item.role==1)?'left_word':'right_word'">
+                    <img :src="(item.role==1)?'img/person01.png':'img/person02.png'">
+                    <span>{{ item.msg }}</span>
+                </li>
+            </ul>
+            <div class="drag_bar">
+                <div class="drager"></div>
+            </div>
+        </div>
+        <div class="footer">
+            <img src="img/person02.png" alt="icon">
+            <input type="text" placeholder="说的什么吧..." class="input_txt" v-model.trim="InputVal" @keyup.enter="chat">
+            <input type="button" value="发 送" class="input_sub" @click="chat">
+        </div>
+    </div>
+    <script type="text/javascript" src="js/scroll.js"></script>
+    <script>
+        var vm = new Vue({
+            el: '.wrap',
+            data: {
+                InputVal: '',
+                MsgList: [],
+            },
+            methods: {
+                chat() {
+                    if (this.InputVal == '') {
+                        alert('总得说点啥！')
+                        return;
+                    }
+                    this.MsgList.push({
+                        role: 0,
+                        msg: this.InputVal
+                    })
+                    this.reply(this.InputVal);
+                },
+                reply(str) {
+                    $.ajax({
+                        url: 'http://www.tuling123.com/openapi/api',
+                        type: 'post',
+                        data: {
+                            key: 'd7c82ebd8b304abeacc73b366e42b9ed',
+                            info: str
+                        },
+                        success: backData => {
+                            this.MsgList.push({
+                                role: 1,
+                                msg: backData.text
+                            })
+                        }
+                    })
+                    this.InputVal = '';
+                }
+            },
+            mounted() {
+                this.reply('hello!');
+            },
+            updated() {
+                resetui();
+            }
+        })
+    </script>
+
+</body>
+
+</html>
